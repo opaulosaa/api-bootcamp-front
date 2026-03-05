@@ -1,34 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
+import PrivateRoute from './components/PrivateRoute'
+import AdminRoute from './components/AdminRoute'
+import Register from './pages/Register'
+import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
+import CreateOffer from './pages/CreateOffer'
+import Offers from './pages/Offers'
+import EditOffer from './pages/EditOffer'
+import OfferDetails from './pages/OfferDetails'
+import Messages from './pages/Messages'
+import Notifications from './pages/Notifications'
+import AdminPanel from './pages/AdminPanel'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+function AppContent() {
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/register' || 
+                     location.pathname === '/login' || 
+                     location.pathname === '/forgot-password' || 
+                     location.pathname === '/reset-password';
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="App">
+      {!isAuthPage && <Navbar />}
+      <Routes>
+        <Route path="/" element={<Navigate to="/offers" replace />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/create-offer" element={<CreateOffer />} />
+        <Route path="/offers" element={<Offers />} />
+        <Route path="/offer-details/:id" element={<OfferDetails />} />
+        <Route path="/edit-offer/:id" element={<EditOffer />} />
+        <Route path="/messages" element={
+          <PrivateRoute>
+            <Messages />
+          </PrivateRoute>
+        } />
+        <Route path="/notifications" element={
+          <PrivateRoute>
+            <Notifications />
+          </PrivateRoute>
+        } />
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminPanel />
+          </AdminRoute>
+        } />
+      </Routes>
+      {!isAuthPage && <Footer />}
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 
