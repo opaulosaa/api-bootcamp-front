@@ -32,7 +32,7 @@ function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark custom-navbar">
       <div className="container">
-        <Link className="navbar-brand fw-bold" to="/offers">
+        <Link className="navbar-brand fw-bold" to="/">
           Sistema de Conhecimentos
         </Link>
         <button
@@ -44,23 +44,7 @@ function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <Link className="nav-link" to="/register">
-                Cadastro Pessoa
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/create-offer">
-                Criar Oferta
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/offers">
-                Ver Ofertas
-              </Link>
-            </li>
-            
+          <ul className="navbar-nav ms-auto align-items-center">
             {isAuthenticated() && (
               <>
                 {user?.role === 'ADMIN' && (
@@ -88,7 +72,7 @@ function Navbar() {
                 </li>
               </>
             )}
-            
+
             {isAuthenticated() ? (
               <li className="nav-item dropdown">
                 <a
@@ -130,12 +114,20 @@ function Navbar() {
                 </ul>
               </li>
             ) : (
-              <li className="nav-item">
-                <Link className="nav-link" to="/login">
-                  <i className="bi bi-box-arrow-in-right me-1"></i>
-                  Entrar
-                </Link>
-              </li>
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/login">
+                    <i className="bi bi-box-arrow-in-right me-1"></i>
+                    Entrar
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="navbar-btn-register" to="/register">
+                    <i className="bi bi-person-plus-fill me-1"></i>
+                    Cadastrar-se
+                  </Link>
+                </li>
+              </>
             )}
           </ul>
         </div>

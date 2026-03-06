@@ -30,7 +30,7 @@ function OfferDetails() {
       
       // Carregar oferta
       const ofertasResponse = await api.get('/conhecimentos');
-      const ofertaEncontrada = ofertasResponse.data.find((o) => o.id === parseInt(id));
+      const ofertaEncontrada = ofertasResponse.data.find((o) => o.id === id);
       
       if (!ofertaEncontrada) {
         setMessage('Oferta não encontrada');
@@ -232,30 +232,11 @@ function OfferDetails() {
                 <span className="badge bg-primary me-2">
                   <i className="bi bi-tag"></i> {oferta.categoria}
                 </span>
-                {oferta.modalidade && (
-                  <span className="badge bg-info me-2">
-                    {oferta.modalidade === 'Presencial' && '🏢'}
-                    {oferta.modalidade === 'Online' && '💻'}
-                    {oferta.modalidade === 'Híbrido' && '🔄'}
-                    {' '}{oferta.modalidade}
-                  </span>
-                )}
-                {oferta.duracao && (
-                  <span className="badge bg-secondary">
-                    ⏱️ {oferta.duracao}
-                  </span>
-                )}
               </div>
 
               <h5 className="mt-4">Descrição</h5>
               <p className="text-muted">{oferta.descricao || 'Sem descrição disponível'}</p>
 
-              {oferta.prerequisitos && (
-                <>
-                  <h5 className="mt-4">📋 Pré-requisitos</h5>
-                  <p className="text-muted">{oferta.prerequisitos}</p>
-                </>
-              )}
             </div>
           </div>
 

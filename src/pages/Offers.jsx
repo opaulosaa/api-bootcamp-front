@@ -11,9 +11,7 @@ function Offers() {
   const [filtros, setFiltros] = useState({
     busca: '',
     categoria: '',
-    nivel: '',
-    modalidade: '',
-    duracao: ''
+    nivel: ''
   });
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
 
@@ -49,16 +47,6 @@ function Offers() {
       resultado = resultado.filter(oferta => oferta.nivel === filtros.nivel);
     }
 
-    // Filtro por modalidade
-    if (filtros.modalidade) {
-      resultado = resultado.filter(oferta => oferta.modalidade === filtros.modalidade);
-    }
-
-    // Filtro por duração
-    if (filtros.duracao) {
-      resultado = resultado.filter(oferta => oferta.duracao === filtros.duracao);
-    }
-
     setOfertasFiltradas(resultado);
   };
 
@@ -73,9 +61,7 @@ function Offers() {
     setFiltros({
       busca: '',
       categoria: '',
-      nivel: '',
-      modalidade: '',
-      duracao: ''
+      nivel: ''
     });
   };
 
@@ -169,7 +155,7 @@ function Offers() {
                   onChange={handleFiltroChange}
                 />
               </div>
-              <div className="col-md-3">
+              <div className="col-md-6">
                 <select
                   className="form-select"
                   name="categoria"
@@ -189,7 +175,7 @@ function Offers() {
                   <option value="Outros">Outros</option>
                 </select>
               </div>
-              <div className="col-md-3">
+              <div className="col-md-6">
                 <select
                   className="form-select"
                   name="nivel"
@@ -200,36 +186,6 @@ function Offers() {
                   <option value="basico">Básico</option>
                   <option value="intermediario">Intermediário</option>
                   <option value="avancado">Avançado</option>
-                </select>
-              </div>
-              <div className="col-md-3">
-                <select
-                  className="form-select"
-                  name="modalidade"
-                  value={filtros.modalidade}
-                  onChange={handleFiltroChange}
-                >
-                  <option value="">Todas Modalidades</option>
-                  <option value="Presencial">🏢 Presencial</option>
-                  <option value="Online">💻 Online</option>
-                  <option value="Híbrido">🔄 Híbrido</option>
-                </select>
-              </div>
-              <div className="col-md-3">
-                <select
-                  className="form-select"
-                  name="duracao"
-                  value={filtros.duracao}
-                  onChange={handleFiltroChange}
-                >
-                  <option value="">Todas Durações</option>
-                  <option value="1-2 horas">1-2 horas</option>
-                  <option value="1 semana">1 semana</option>
-                  <option value="2-4 semanas">2-4 semanas</option>
-                  <option value="1-2 meses">1-2 meses</option>
-                  <option value="3-6 meses">3-6 meses</option>
-                  <option value="6+ meses">6+ meses</option>
-                  <option value="Contínuo">Contínuo</option>
                 </select>
               </div>
             </div>
@@ -289,22 +245,6 @@ function Offers() {
                     {oferta.descricao || 'Sem descrição'}
                   </p>
 
-                  {/* Informações adicionais */}
-                  <div className="mt-3">
-                    {oferta.modalidade && (
-                      <span className="badge bg-info me-2">
-                        {oferta.modalidade === 'Presencial' && '🏢'}
-                        {oferta.modalidade === 'Online' && '💻'}
-                        {oferta.modalidade === 'Híbrido' && '🔄'}
-                        {' '}{oferta.modalidade}
-                      </span>
-                    )}
-                    {oferta.duracao && (
-                      <span className="badge bg-secondary">
-                        ⏱️ {oferta.duracao}
-                      </span>
-                    )}
-                  </div>
                 </div>
                 
                 <div className="card-footer bg-white border-top-0">

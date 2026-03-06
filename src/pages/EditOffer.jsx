@@ -11,10 +11,7 @@ function EditOffer() {
     descricao: '',
     categoria: '',
     nivel: 'basico',
-    pessoa_id: '',
-    prerequisitos: '',
-    duracao: '',
-    modalidade: ''
+    pessoa_id: ''
   });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -28,7 +25,7 @@ function EditOffer() {
 
       // Carregar dados da oferta
       const ofertasResponse = await api.get('/conhecimentos');
-      const oferta = ofertasResponse.data.find((o) => o.id === parseInt(id));
+      const oferta = ofertasResponse.data.find((o) => o.id === id);
       
       if (oferta) {
         setFormData({
@@ -36,10 +33,7 @@ function EditOffer() {
           descricao: oferta.descricao || '',
           categoria: oferta.categoria || '',
           nivel: oferta.nivel || 'basico',
-          pessoa_id: oferta.pessoa_id || '',
-          prerequisitos: oferta.prerequisitos || '',
-          duracao: oferta.duracao || '',
-          modalidade: oferta.modalidade || ''
+          pessoa_id: oferta.pessoa_id || ''
         });
       } else {
         setMessage('Oferta não encontrada');
@@ -195,84 +189,28 @@ function EditOffer() {
                   </div>
                 </div>
 
-                <div className="row">
-                  <div className="col-md-4 mb-3">
-                    <label htmlFor="duracao" className="form-label">
-                      ⏱️ Duração
-                    </label>
-                    <select
-                      className="form-select"
-                      id="duracao"
-                      name="duracao"
-                      value={formData.duracao}
-                      onChange={handleChange}
-                    >
-                      <option value="">Selecione...</option>
-                      <option value="1-2 horas">1-2 horas</option>
-                      <option value="1 semana">1 semana</option>
-                      <option value="2-4 semanas">2-4 semanas</option>
-                      <option value="1-2 meses">1-2 meses</option>
-                      <option value="3-6 meses">3-6 meses</option>
-                      <option value="6+ meses">6+ meses</option>
-                      <option value="Contínuo">Contínuo</option>
-                    </select>
-                  </div>
-
-                  <div className="col-md-4 mb-3">
-                    <label htmlFor="modalidade" className="form-label">
-                      📍 Modalidade
-                    </label>
-                    <select
-                      className="form-select"
-                      id="modalidade"
-                      name="modalidade"
-                      value={formData.modalidade}
-                      onChange={handleChange}
-                    >
-                      <option value="">Selecione...</option>
-                      <option value="Presencial">🏢 Presencial</option>
-                      <option value="Online">💻 Online</option>
-                      <option value="Híbrido">🔄 Híbrido</option>
-                    </select>
-                  </div>
-
-                  <div className="col-md-4 mb-3">
-                    <label htmlFor="pessoa_id" className="form-label">
-                      👨‍🏫 Instrutor <span className="text-danger">*</span>
-                    </label>
-                    <select
-                      className="form-select"
-                      id="pessoa_id"
-                      name="pessoa_id"
-                      value={formData.pessoa_id}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Selecione...</option>
-                      {pessoas.map((pessoa) => (
-                        <option key={pessoa.id} value={pessoa.id}>
-                          {pessoa.nome}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
                 <div className="mb-3">
-                  <label htmlFor="prerequisitos" className="form-label">
-                    📋 Pré-requisitos
+                  <label htmlFor="pessoa_id" className="form-label">
+                    👨‍🏫 Instrutor <span className="text-danger">*</span>
                   </label>
-                  <textarea
-                    className="form-control"
-                    id="prerequisitos"
-                    name="prerequisitos"
-                    rows="3"
-                    value={formData.prerequisitos}
+                  <select
+                    className="form-select"
+                    id="pessoa_id"
+                    name="pessoa_id"
+                    value={formData.pessoa_id}
                     onChange={handleChange}
-                    placeholder="Liste os conhecimentos ou habilidades necessários para participar desta oferta..."
-                  ></textarea>
-                  <small className="text-muted">opcional</small>
+                    required
+                  >
+                    <option value="">Selecione...</option>
+                    {pessoas.map((pessoa) => (
+                      <option key={pessoa.id} value={pessoa.id}>
+                        {pessoa.nome}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
+
 
                 <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                   <button

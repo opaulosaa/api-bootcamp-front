@@ -11,10 +11,7 @@ function CreateOffer() {
     descricao: '',
     categoria: '',
     nivel: 'basico',
-    pessoa_id: '',
-    prerequisitos: '',
-    duracao: '',
-    modalidade: ''
+    pessoa_id: ''
   });
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
@@ -264,65 +261,9 @@ function CreateOffer() {
                   </div>
                 </div>
 
-                <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="duracao" className="form-label">
-                      Duração Estimada <span className="text-danger">*</span>
-                    </label>
-                    <select
-                      className="form-select"
-                      id="duracao"
-                      name="duracao"
-                      value={formData.duracao}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Selecione...</option>
-                      <option value="1-2 horas">1-2 horas</option>
-                      <option value="3-5 horas">3-5 horas</option>
-                      <option value="6-10 horas">6-10 horas</option>
-                      <option value="1-2 semanas">1-2 semanas</option>
-                      <option value="3-4 semanas">3-4 semanas</option>
-                      <option value="1-2 meses">1-2 meses</option>
-                      <option value="3+ meses">3+ meses</option>
-                    </select>
-                  </div>
 
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="modalidade" className="form-label">
-                      Modalidade <span className="text-danger">*</span>
-                    </label>
-                    <select
-                      className="form-select"
-                      id="modalidade"
-                      name="modalidade"
-                      value={formData.modalidade}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Selecione...</option>
-                      <option value="Presencial">🏢 Presencial</option>
-                      <option value="Online">💻 Online</option>
-                      <option value="Híbrido">🔄 Híbrido</option>
-                    </select>
-                  </div>
-                </div>
 
-                <div className="mb-3">
-                  <label htmlFor="prerequisitos" className="form-label">
-                    Pré-requisitos
-                  </label>
-                  <textarea
-                    className="form-control"
-                    id="prerequisitos"
-                    name="prerequisitos"
-                    rows="2"
-                    value={formData.prerequisitos}
-                    onChange={handleChange}
-                    placeholder="Ex: Conhecimento básico de HTML e CSS, computador com acesso à internet..."
-                  ></textarea>
-                  <small className="text-muted">Liste os conhecimentos ou recursos necessários para participar</small>
-                </div>
+
 
                 <div className="mb-3">
                   <label htmlFor="pessoa_id" className="form-label">

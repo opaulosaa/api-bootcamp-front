@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -15,6 +15,8 @@ import OfferDetails from './pages/OfferDetails'
 import Messages from './pages/Messages'
 import Notifications from './pages/Notifications'
 import AdminPanel from './pages/AdminPanel'
+import LandingPage from './pages/LandingPage'
+import Knowledge from './pages/Knowledge'
 import './App.css'
 
 function AppContent() {
@@ -28,12 +30,17 @@ function AppContent() {
     <div className="App">
       {!isAuthPage && <Navbar />}
       <Routes>
-        <Route path="/" element={<Navigate to="/offers" replace />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/create-offer" element={<CreateOffer />} />
+        <Route path="/create-offer" element={
+          <PrivateRoute>
+            <CreateOffer />
+          </PrivateRoute>
+        } />
         <Route path="/offers" element={<Offers />} />
         <Route path="/offer-details/:id" element={<OfferDetails />} />
         <Route path="/edit-offer/:id" element={<EditOffer />} />
