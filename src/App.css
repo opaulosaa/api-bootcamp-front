@@ -272,4 +272,33 @@ html {
   scroll-behavior: smooth;
 }
 
+/* --- Ajustes de Responsividade para o VLibras --- */
+
+/* Estilo para telas grandes (Desktop) */
+[vw].enabled {
+  right: 20px !important; /* Afasta um pouco da borda direita */
+  bottom: 20px !important; /* Afasta da borda inferior */
+}
+
+/* Ajustes para Tablets e Celulares (telas menores que 768px) */
+@media (max-width: 768px) {
+  [vw].enabled {
+    transform: scale(0.8); /* Diminui o bonequinho para não ocupar muito espaço */
+    transform-origin: bottom right;
+    right: 10px !important;
+    bottom: 20px !important;
+  }
+
+  /* Se o bonequinho estiver cobrindo algum botão de ação no mobile, 
+     você pode aumentar o 'bottom' para ele subir um pouco */
+  .vw-plugin-wrapper {
+    max-height: 400px !important; /* Evita que a janela de libras ultrapasse o topo em telas pequenas */
+  }
+}
+
+/* Garante que o widget fique acima das animações de fade-in dos cards */
+[vw].enabled {
+  z-index: 9999 !important;
+}
+
 
