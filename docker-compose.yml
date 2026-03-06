@@ -1,27 +1,59 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-atividade_avanti_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
-      # Copy `docker/Dockerfile.backend` to your backend repo root as `Dockerfile`,
-      # then set `context` to the backend repo path. Example below assumes sibling folder:
       context: ../api-node-prisma-avanti-bootcamp
       dockerfile: Dockerfile
     restart: unless-stopped
+    command: sh -c "npx prisma migrate deploy && node index.js"
     environment:
       - PORT=3000
-      # Add other env vars via .env or directly here
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-atividade_avanti_db}?schema=public
+      - JWT_SECRET=${JWT_SECRET:-mude_esta_chave_em_producao}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:5173}
     ports:
       - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     build:
       context: .
       dockerfile: docker/Dockerfile.frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}
     restart: unless-stopped
     ports:
-      - "5173:80" # mapeia porta 5173 (host) para 80 (nginx)
+      - "5173:80"
     depends_on:
       - backend
 
-# Observação: por segurança, coloque variáveis sensíveis em um arquivo .env e não no compose.
+volumes:
+  postgres_data:
+
+# Crie um arquivo .env na raiz com as variáveis sensíveis:
+# POSTGRES_USER=postgres
+# POSTGRES_PASSWORD=senha_forte
+# POSTGRES_DB=atividade_avanti_db
+# JWT_SECRET=chave_jwt_super_secreta
+# CORS_ORIGIN=http://localhost:5173
+# VITE_API_URL=   (vazio = nginx proxy)
