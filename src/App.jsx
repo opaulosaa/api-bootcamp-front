@@ -12,8 +12,6 @@ import CreateOffer from './pages/CreateOffer'
 import Offers from './pages/Offers'
 import EditOffer from './pages/EditOffer'
 import OfferDetails from './pages/OfferDetails'
-import Messages from './pages/Messages'
-import Notifications from './pages/Notifications'
 import AdminPanel from './pages/AdminPanel'
 import LandingPage from './pages/LandingPage'
 import Knowledge from './pages/Knowledge'
@@ -36,6 +34,11 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/dashboard" element={
+          <PrivateRoute>
+            <Knowledge />
+          </PrivateRoute>
+        } />
         <Route path="/create-offer" element={
           <PrivateRoute>
             <CreateOffer />
@@ -44,16 +47,6 @@ function AppContent() {
         <Route path="/offers" element={<Offers />} />
         <Route path="/offer-details/:id" element={<OfferDetails />} />
         <Route path="/edit-offer/:id" element={<EditOffer />} />
-        <Route path="/messages" element={
-          <PrivateRoute>
-            <Messages />
-          </PrivateRoute>
-        } />
-        <Route path="/notifications" element={
-          <PrivateRoute>
-            <Notifications />
-          </PrivateRoute>
-        } />
         <Route path="/admin" element={
           <AdminRoute>
             <AdminPanel />

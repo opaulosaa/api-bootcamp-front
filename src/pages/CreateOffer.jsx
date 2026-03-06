@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import { criarNotificacao } from '../utils/notificationsHelper';
 
 function CreateOffer() {
   const navigate = useNavigate();
@@ -9,7 +8,6 @@ function CreateOffer() {
   const [formData, setFormData] = useState({
     titulo: '',
     descricao: '',
-    categoria: '',
     nivel: 'basico',
     pessoa_id: ''
   });
@@ -21,7 +19,6 @@ function CreateOffer() {
   const calcularProgresso = () => {
     const campos = [
       formData.titulo,
-      formData.categoria,
       formData.pessoa_id,
       formData.descricao
     ];
@@ -76,29 +73,29 @@ function CreateOffer() {
     e.preventDefault();
 
     // Validação básica
-    if (!formData.titulo || !formData.categoria || !formData.pessoa_id) {
+    if (!formData.titulo || !formData.pessoa_id) {
       setMessage('Por favor, preencha todos os campos obrigatórios.');
       setMessageType('danger');
       return;
     }
 
     try {
-      const response = await api.post('/conhecimentos', formData);
+      // Preparar payload com campos no formato esperado pelo backend
+      const payload = {
+        titulo: formData.titulo,
+        descricao: formData.descricao,
+        categoria: 'Geral', // Categoria padrão até o backend não exigir mais
+        nivel: formData.nivel,
+        pessoaId: formData.pessoa_id // Backend espera camelCase
+      };
+      
+      const response = await api.post('/ofertas', payload);
       setMessage('Oferta criada com sucesso!');
       setMessageType('success');
       
-      // Criar notificação para todos os usuários
-      criarNotificacao(
-        'nova_oferta',
-        '📚 Nova Oferta Disponível!',
-        `Uma nova oferta de ${formData.categoria} (nível ${formData.nivel}) foi criada: "${formData.titulo}"`,
-        `/offer-details/${response.data.id}`,
-        'usuarios@sistema.com'
-      );
-      
       // Redirecionar após 2 segundos
       setTimeout(() => {
-        navigate('/offers');
+        navigate('/dashboard');
       }, 2000);
     } catch (error) {
       setMessage('Erro ao criar oferta: ' + (error.response?.data?.message || error.message));
@@ -206,37 +203,6 @@ function CreateOffer() {
                 </div>
 
                 <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="categoria" className="form-label">
-                      Categoria <span className="text-danger">*</span>
-                      <i 
-                        className="bi bi-question-circle text-muted ms-2" 
-                        title="Selecione a área de conhecimento que melhor representa sua oferta"
-                        style={{ cursor: 'help' }}
-                      ></i>
-                    </label>
-                    <select
-                      className="form-select"
-                      id="categoria"
-                      name="categoria"
-                      value={formData.categoria}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Selecione...</option>
-                      <option value="Tecnologia">Tecnologia</option>
-                      <option value="Design">Design</option>
-                      <option value="Marketing">Marketing</option>
-                      <option value="Negócios">Negócios</option>
-                      <option value="Idiomas">Idiomas</option>
-                      <option value="Arte">Arte</option>
-                      <option value="Música">Música</option>
-                      <option value="Esportes">Esportes</option>
-                      <option value="Culinária">Culinária</option>
-                      <option value="Outros">Outros</option>
-                    </select>
-                  </div>
-
                   <div className="col-md-6 mb-3">
                     <label htmlFor="nivel" className="form-label">
                       Nível <span className="text-danger">*</span>

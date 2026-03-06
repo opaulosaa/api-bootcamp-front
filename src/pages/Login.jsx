@@ -16,7 +16,7 @@ function Login() {
   const location = useLocation();
   const { login } = useAuth();
 
-  const from = location.state?.from?.pathname || '/offers';
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,15 +24,22 @@ function Login() {
     setLoading(true);
 
     try {
-      // Fazer login usando endpoint de autenticação
-      const response = await api.post('/auth/login', {
+      const response = await api.post('/users/login', {
         email,
         senha
       });
-
-      if (response.data.pessoa) {
-        // Login bem-sucedido
-        const pessoa = response.data.pessoa;
+      
+      console.log('🔐 [Login] Resposta completa do backend:', response.data);
+      
+      if (response.data.pessoa || response.data.user) {
+        const pessoa = response.data.pessoa || response.data.user;
+        
+        // Armazenar token se existir
+        if (response.data.token) {
+          console.log('🔑 [Login] Token recebido:', response.data.token);
+          localStorage.setItem('token', response.data.token);
+        }
+        
         login({
           id: pessoa.id,
           nome: pessoa.nome,
@@ -42,10 +49,13 @@ function Login() {
           role: pessoa.role
         });
         navigate(from, { replace: true });
+      } else {
+        setError('Email ou senha inválidos');
       }
     } catch (err) {
-      console.error('Erro ao fazer login:', err);
-      if (err.response && err.response.status === 401) {
+      console.error('Detalhes do erro:', err.response?.data || err.message);
+      
+      if (err.response?.status === 401 || err.response?.status === 400) {
         setError('Email ou senha inválidos');
       } else {
         setError('Erro ao conectar com o servidor. Tente novamente.');

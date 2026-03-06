@@ -9,7 +9,7 @@ function EditOffer() {
   const [formData, setFormData] = useState({
     titulo: '',
     descricao: '',
-    categoria: '',
+
     nivel: 'basico',
     pessoa_id: ''
   });
@@ -24,14 +24,16 @@ function EditOffer() {
       setPessoas(pessoasResponse.data.pessoas || pessoasResponse.data);
 
       // Carregar dados da oferta
-      const ofertasResponse = await api.get('/conhecimentos');
-      const oferta = ofertasResponse.data.find((o) => o.id === id);
+      const ofertasResponse = await api.get('/ofertas');
+      // API retorna {count, ofertas} ao invés de array direto
+      const ofertasArray = ofertasResponse.data?.ofertas || ofertasResponse.data || [];
+      const oferta = ofertasArray.find((o) => o.id === id);
       
       if (oferta) {
         setFormData({
           titulo: oferta.titulo || '',
           descricao: oferta.descricao || '',
-          categoria: oferta.categoria || '',
+
           nivel: oferta.nivel || 'basico',
           pessoa_id: oferta.pessoa_id || ''
         });
@@ -63,14 +65,23 @@ function EditOffer() {
     e.preventDefault();
 
     // Validação básica
-    if (!formData.titulo || !formData.categoria || !formData.pessoa_id) {
+    if (!formData.titulo || !formData.pessoa_id) {
       setMessage('Por favor, preencha todos os campos obrigatórios.');
       setMessageType('danger');
       return;
     }
 
     try {
-      await api.put(`/conhecimentos/${id}`, formData);
+      // Preparar payload com campos no formato esperado pelo backend
+      const payload = {
+        titulo: formData.titulo,
+        descricao: formData.descricao,
+        categoria: 'Geral', // Categoria padrão até o backend não exigir mais
+        nivel: formData.nivel,
+        pessoaId: formData.pessoa_id // Backend espera camelCase
+      };
+      
+      await api.put(`/ofertas/${id}`, payload);
       setMessage('Oferta atualizada com sucesso!');
       setMessageType('success');
       
@@ -144,32 +155,6 @@ function EditOffer() {
                 </div>
 
                 <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="categoria" className="form-label">
-                      Categoria <span className="text-danger">*</span>
-                    </label>
-                    <select
-                      className="form-select"
-                      id="categoria"
-                      name="categoria"
-                      value={formData.categoria}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Selecione...</option>
-                      <option value="Tecnologia">Tecnologia</option>
-                      <option value="Design">Design</option>
-                      <option value="Marketing">Marketing</option>
-                      <option value="Negócios">Negócios</option>
-                      <option value="Idiomas">Idiomas</option>
-                      <option value="Arte">Arte</option>
-                      <option value="Música">Música</option>
-                      <option value="Esportes">Esportes</option>
-                      <option value="Culinária">Culinária</option>
-                      <option value="Outros">Outros</option>
-                    </select>
-                  </div>
-
                   <div className="col-md-6 mb-3">
                     <label htmlFor="nivel" className="form-label">
                       Nível <span className="text-danger">*</span>

@@ -1,38 +1,21 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getNotificacoesNaoLidas } from '../utils/notificationsHelper';
 import { getRoleLabel, getRoleBadgeColor } from '../utils/roleHelper';
 import './Navbar.css';
 
 function Navbar() {
-  const [notificacoesNaoLidas, setNotificacoesNaoLidas] = useState(0);
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Atualizar contador de notificações
-    const atualizarContador = () => {
-      setNotificacoesNaoLidas(getNotificacoesNaoLidas());
-    };
-
-    atualizarContador();
-
-    // Atualizar a cada 5 segundos
-    const interval = setInterval(atualizarContador, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const handleLogout = () => {
     logout();
-    navigate('/offers');
+    navigate('/');
   };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark custom-navbar">
       <div className="container">
-        <Link className="navbar-brand fw-bold" to="/">
+        <Link className="navbar-brand fw-bold" to={isAuthenticated() ? "/dashboard" : "/"}>
           Sistema de Conhecimentos
         </Link>
         <button
@@ -47,6 +30,11 @@ function Navbar() {
           <ul className="navbar-nav ms-auto align-items-center">
             {isAuthenticated() && (
               <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/dashboard">
+                    <i className="bi bi-grid-3x3-gap"></i> Dashboard
+                  </Link>
+                </li>
                 {user?.role === 'ADMIN' && (
                   <li className="nav-item">
                     <Link className="nav-link text-warning" to="/admin">
@@ -54,22 +42,6 @@ function Navbar() {
                     </Link>
                   </li>
                 )}
-                <li className="nav-item">
-                  <Link className="nav-link" to="/messages">
-                    <i className="bi bi-chat-dots"></i> Mensagens
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link position-relative" to="/notifications">
-                    <i className="bi bi-bell"></i> Notificações
-                    {notificacoesNaoLidas > 0 && (
-                      <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
-                        {notificacoesNaoLidas}
-                        <span className="visually-hidden">notificações não lidas</span>
-                      </span>
-                    )}
-                  </Link>
-                </li>
               </>
             )}
 

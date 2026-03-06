@@ -10,7 +10,6 @@ function Offers() {
   const [messageType, setMessageType] = useState('');
   const [filtros, setFiltros] = useState({
     busca: '',
-    categoria: '',
     nivel: ''
   });
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
@@ -32,14 +31,8 @@ function Offers() {
       const buscaLower = filtros.busca.toLowerCase();
       resultado = resultado.filter(oferta =>
         oferta.titulo?.toLowerCase().includes(buscaLower) ||
-        oferta.descricao?.toLowerCase().includes(buscaLower) ||
-        oferta.categoria?.toLowerCase().includes(buscaLower)
+        oferta.descricao?.toLowerCase().includes(buscaLower)
       );
-    }
-
-    // Filtro por categoria
-    if (filtros.categoria) {
-      resultado = resultado.filter(oferta => oferta.categoria === filtros.categoria);
     }
 
     // Filtro por nível
@@ -60,7 +53,6 @@ function Offers() {
   const limparFiltros = () => {
     setFiltros({
       busca: '',
-      categoria: '',
       nivel: ''
     });
   };
@@ -68,8 +60,10 @@ function Offers() {
   const loadOfertas = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/conhecimentos');
-      setOfertas(response.data);
+      const response = await api.get('/ofertas');
+      // API retorna {count, ofertas} ao invés de array direto
+      const ofertasArray = response.data?.ofertas || response.data || [];
+      setOfertas(ofertasArray);
     } catch (error) {
       setMessage('Erro ao carregar ofertas: ' + (error.response?.data?.message || error.message));
       setMessageType('danger');
@@ -84,7 +78,7 @@ function Offers() {
     }
 
     try {
-      await api.delete(`/conhecimentos/${id}`);
+      await api.delete(`/ofertas/${id}`);
       setMessage('Oferta excluída com sucesso!');
       setMessageType('success');
       loadOfertas(); // Recarregar lista
@@ -149,31 +143,11 @@ function Offers() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="🔍 Buscar por título, descrição ou categoria..."
+                  placeholder="🔍 Buscar por título ou descrição..."
                   name="busca"
                   value={filtros.busca}
                   onChange={handleFiltroChange}
                 />
-              </div>
-              <div className="col-md-6">
-                <select
-                  className="form-select"
-                  name="categoria"
-                  value={filtros.categoria}
-                  onChange={handleFiltroChange}
-                >
-                  <option value="">Todas Categorias</option>
-                  <option value="Tecnologia">Tecnologia</option>
-                  <option value="Design">Design</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Negócios">Negócios</option>
-                  <option value="Idiomas">Idiomas</option>
-                  <option value="Arte">Arte</option>
-                  <option value="Música">Música</option>
-                  <option value="Esportes">Esportes</option>
-                  <option value="Culinária">Culinária</option>
-                  <option value="Outros">Outros</option>
-                </select>
               </div>
               <div className="col-md-6">
                 <select
@@ -236,10 +210,6 @@ function Offers() {
                       {formatNivel(oferta.nivel)}
                     </span>
                   </div>
-                  
-                  <h6 className="card-subtitle mb-3 text-muted">
-                    <i className="bi bi-tag"></i> {oferta.categoria}
-                  </h6>
                   
                   <p className="card-text">
                     {oferta.descricao || 'Sem descrição'}

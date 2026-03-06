@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { criarNotificacao } from '../utils/notificationsHelper';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './ForgotPassword.css';
@@ -39,15 +38,6 @@ function ForgotPassword() {
           expira: new Date().getTime() + (15 * 60 * 1000) // 15 minutos
         };
         localStorage.setItem('recuperacao_senha', JSON.stringify(recuperacaoData));
-
-        // Criar notificação no sistema
-        criarNotificacao(
-          'recuperacao_senha',
-          '🔐 Recuperação de Senha Solicitada',
-          `Um código de recuperação foi gerado para ${pessoa.nome}. Código: ${codigoRecuperacao}`,
-          pessoa.email,
-          pessoa.email
-        );
 
         setMessage(
           `Um código de recuperação foi enviado para seu email! 

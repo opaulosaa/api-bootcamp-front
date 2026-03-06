@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { criarNotificacao } from '../utils/notificationsHelper';
 import './Register.css';
 
 function Register() {
@@ -20,11 +19,9 @@ function Register() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
   const [passwordStrength, setPasswordStrength] = useState(0);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [emailAvailable, setEmailAvailable] = useState(null);
   const [checkingEmail, setCheckingEmail] = useState(false);
 
-  // Progresso agora é visual via steps, não mais cálculo percentual
 
   // Calcular força da senha
   const calculatePasswordStrength = (password) => {
@@ -37,7 +34,6 @@ function Register() {
     return strength;
   };
 
-  // Removida getPasswordStrengthColor - cores aplicadas inline no JSX
 
   const getPasswordStrengthText = () => {
     if (passwordStrength === 0) return '';
@@ -116,12 +112,6 @@ function Register() {
       return;
     }
 
-    if (!acceptedTerms) {
-      setMessage('Você deve aceitar os termos de uso para continuar.');
-      setMessageType('warning');
-      return;
-    }
-
     if (formData.senha !== formData.confirmarSenha) {
       setMessage('As senhas não coincidem.');
       setMessageType('danger');
@@ -150,16 +140,10 @@ function Register() {
       setMessage('Pessoa cadastrada com sucesso! Redirecionando...');
       setMessageType('success');
 
-      try {
-        criarNotificacao(
-          'novo_usuario',
-          '👤 Novo Usuário Registrado!',
-          `${formData.nome} acabou de se cadastrar no sistema!`,
-          null,
-          'admin@sistema.com'
-        );
-      } catch (notifError) {
-        console.warn('Erro ao criar notificação:', notifError);
+      // Armazenar token se existir
+      if (response.data.token) {
+        console.log('🔑 [Register] Token recebido:', response.data.token);
+        localStorage.setItem('token', response.data.token);
       }
 
       if (response.data.pessoa) {
@@ -172,7 +156,7 @@ function Register() {
       }
 
       setTimeout(() => {
-        navigate('/offers');
+        navigate('/dashboard');
       }, 1000);
     } catch (error) {
       console.error('Erro detalhado no cadastro:', error);
@@ -349,12 +333,6 @@ function Register() {
               </div>
             </div>
 
-            {/* Seção de Segurança */}
-            <div className="section-divider">
-              <i className="bi bi-shield-lock-fill me-2"></i>
-              <span>Segurança da Conta</span>
-            </div>
-
             <div className="form-grid">
               {/* Senha */}
               <div className="form-group-split">
@@ -450,31 +428,11 @@ function Register() {
               </div>
             </div>
 
-            {/* Termos de Uso */}
-            <div className="terms-section">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  checked={acceptedTerms}
-                  onChange={(e) => setAcceptedTerms(e.target.checked)}
-                  required
-                />
-                <span className="checkbox-custom"></span>
-                <span className="checkbox-text">
-                  Li e aceito os <a href="#" onClick={(e) => e.preventDefault()}>Termos de Uso</a> e a{' '}
-                  <a href="#" onClick={(e) => e.preventDefault()}>Política de Privacidade</a>
-                  <span className="required-asterisk">*</span>
-                </span>
-              </label>
-            </div>
-
             {/* Botão Submit */}
             <button
               type="submit"
               className="submit-btn-split"
               disabled={
-                !acceptedTerms || 
                 !formData.nome || 
                 !formData.email || 
                 !formData.telefone ||

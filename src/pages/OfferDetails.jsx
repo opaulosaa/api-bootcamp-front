@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
-import { criarNotificacao } from '../utils/notificationsHelper';
 
 function OfferDetails() {
   const { id } = useParams();
@@ -29,8 +28,10 @@ function OfferDetails() {
       setLoading(true);
       
       // Carregar oferta
-      const ofertasResponse = await api.get('/conhecimentos');
-      const ofertaEncontrada = ofertasResponse.data.find((o) => o.id === id);
+      const ofertasResponse = await api.get('/ofertas');
+      // API retorna {count, ofertas} ao invés de array direto
+      const ofertasArray = ofertasResponse.data?.ofertas || ofertasResponse.data || [];
+      const ofertaEncontrada = ofertasArray.find((o) => o.id === id);
       
       if (!ofertaEncontrada) {
         setMessage('Oferta não encontrada');
@@ -90,17 +91,6 @@ function OfferDetails() {
     
     // Salvar no localStorage (simulando backend)
     localStorage.setItem(`avaliacoes_${id}`, JSON.stringify(novasAvaliacoes));
-
-    // Criar notificação para o instrutor da oferta
-    if (instrutor && oferta) {
-      criarNotificacao(
-        'nova_avaliacao',
-        '⭐ Nova Avaliação Recebida!',
-        `${novaAvaliacao.nome_avaliador} avaliou sua oferta "${oferta.titulo}" com ${novaAvaliacao.nota} estrelas`,
-        `/offer-details/${id}`,
-        instrutor.email
-      );
-    }
 
     setMessage('Avaliação enviada com sucesso!');
     setMessageType('success');
@@ -225,12 +215,6 @@ function OfferDetails() {
                 <h2 className="card-title mb-0">{oferta.titulo}</h2>
                 <span className={`badge ${getNivelBadgeClass(oferta.nivel)} fs-6`}>
                   {formatNivel(oferta.nivel)}
-                </span>
-              </div>
-
-              <div className="mb-3">
-                <span className="badge bg-primary me-2">
-                  <i className="bi bi-tag"></i> {oferta.categoria}
                 </span>
               </div>
 

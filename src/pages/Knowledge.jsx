@@ -4,17 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './Knowledge.css';
 
-const CATEGORIES = [
-  'Tecnologia', 'Design', 'Idiomas', 'Música', 'Negócios',
-  'Saúde', 'Esportes', 'Culinária', 'Ciências', 'Artes', 'Outro'
-];
-
 const LEVELS = ['Iniciante', 'Intermediário', 'Avançado', 'Todos os níveis'];
 
 const INITIAL_KNOWLEDGE_FORM = {
   titulo: '',
   descricao: '',
-  categoria: '',
   nivel: ''
 };
 
@@ -31,7 +25,6 @@ const MOCK_KNOWLEDGE = [
     id: '1',
     titulo: 'React do Zero ao Avançado',
     descricao: 'Aprenda React com hooks, context, roteamento e boas práticas de mercado.',
-    categoria: 'Tecnologia',
     nivel: 'Todos os níveis',
     responsavel: { nome: 'Ana Silva' }
   },
@@ -39,7 +32,6 @@ const MOCK_KNOWLEDGE = [
     id: '2',
     titulo: 'Inglês Conversacional',
     descricao: 'Aulas focadas em conversação para que você perca o medo de falar inglês.',
-    categoria: 'Idiomas',
     nivel: 'Iniciante',
     responsavel: { nome: 'Carlos Mendes' }
   },
@@ -47,7 +39,6 @@ const MOCK_KNOWLEDGE = [
     id: '3',
     titulo: 'Violão Popular Brasileiro',
     descricao: 'Do básico ao intermediário: acordes, escalas e músicas do MPB.',
-    categoria: 'Música',
     nivel: 'Iniciante',
     responsavel: { nome: 'Fernanda Costa' }
   },
@@ -55,7 +46,6 @@ const MOCK_KNOWLEDGE = [
     id: '4',
     titulo: 'UI/UX Design com Figma',
     descricao: 'Prototipagem, design system e heurísticas de usabilidade na prática.',
-    categoria: 'Design',
     nivel: 'Intermediário',
     responsavel: { nome: 'Lucas Almeida' }
   }
@@ -72,7 +62,6 @@ function Knowledge() {
 
   // Filters
   const [search, setSearch] = useState('');
-  const [filterCategory, setFilterCategory] = useState('');
   const [filterLevel, setFilterLevel] = useState('');
 
   // Modals
@@ -97,14 +86,32 @@ function Knowledge() {
   const fetchKnowledge = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/conhecimentos');
-      if (res.data && res.data.length) {
-        setKnowledgeList(res.data);
+      console.log('🔄 [Knowledge] Carregando ofertas...');
+      console.log('👤 [Knowledge] User ID:', user?.id);
+      const res = await api.get('/ofertas');
+      console.log('✅ [Knowledge] Ofertas recebidas:', res.data);
+      
+      // API retorna {count, ofertas} ao invés de array direto
+      const ofertasArray = res.data?.ofertas || res.data || [];
+      console.log('📋 [Knowledge] Array de ofertas:', ofertasArray);
+      
+      if (ofertasArray && ofertasArray.length) {
+        setKnowledgeList(ofertasArray);
         if (user) {
-          setMyKnowledge(res.data.filter(k => k.pessoa_id === user.id));
+          // Suporta tanto pessoaId (camelCase) quanto pessoa_id (snake_case)
+          const myItems = ofertasArray.filter(k => {
+            const match = k.pessoaId === user.id || k.pessoa_id === user.id;
+            console.log(`🔍 Comparando oferta ${k.id}: pessoaId=${k.pessoaId}, pessoa_id=${k.pessoa_id}, user.id=${user.id}, match=${match}`);
+            return match;
+          });
+          console.log('👤 [Knowledge] Meus conhecimentos:', myItems);
+          setMyKnowledge(myItems);
         }
+      } else {
+        console.log('⚠️ [Knowledge] Nenhuma oferta encontrada');
       }
-    } catch {
+    } catch (error) {
+      console.error('❌ [Knowledge] Erro ao carregar:', error);
       // Falls back to mock data already set in state
       if (user) {
         setMyKnowledge(MOCK_KNOWLEDGE.filter((_, i) => i < 2).map(k => ({ ...k, isMine: true })));
@@ -123,7 +130,6 @@ function Knowledge() {
     const errors = {};
     if (!knowledgeForm.titulo.trim()) errors.titulo = 'Título é obrigatório';
     if (!knowledgeForm.descricao.trim()) errors.descricao = 'Descrição é obrigatória';
-    if (!knowledgeForm.categoria) errors.categoria = 'Selecione uma categoria';
     if (!knowledgeForm.nivel) errors.nivel = 'Selecione o nível';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -153,32 +159,47 @@ function Knowledge() {
     e.preventDefault();
     if (!validateKnowledgeForm()) return;
     setFormLoading(true);
+    
+    console.log('📝 Tentando cadastrar conhecimento:', {
+      titulo: knowledgeForm.titulo,
+      descricao: knowledgeForm.descricao,
+      nivel: knowledgeForm.nivel,
+      pessoa_id: user?.id
+    });
+    
+    console.log('👤 Usuário atual:', user);
+    
     try {
-      await api.post('/conhecimentos', {
+      const payload = {
         titulo: knowledgeForm.titulo,
         descricao: knowledgeForm.descricao,
-        categoria: knowledgeForm.categoria,
+        categoria: 'Geral', // Categoria padrão até o backend não exigir mais
         nivel: knowledgeForm.nivel,
-        pessoa_id: user?.id
-      });
+        pessoaId: user?.id // Backend espera camelCase
+      };
+      
+      console.log('📤 Payload sendo enviado:', payload);
+      
+      const response = await api.post('/ofertas', payload);
+      
+      console.log('✅ Conhecimento cadastrado com sucesso!', response.data);
       showAlert('success', 'Conhecimento cadastrado com sucesso!');
       setShowAddModal(false);
       setKnowledgeForm(INITIAL_KNOWLEDGE_FORM);
       fetchKnowledge();
-    } catch {
-      // Simulate success locally
-      const newItem = {
-        ...knowledgeForm,
-        id: String(Date.now()),
-        pessoa_id: user?.id,
-        responsavel: { nome: user?.nome || 'Você' },
-        isMine: true
-      };
-      setKnowledgeList(prev => [newItem, ...prev]);
-      setMyKnowledge(prev => [newItem, ...prev]);
-      showAlert('success', 'Conhecimento cadastrado com sucesso!');
-      setShowAddModal(false);
-      setKnowledgeForm(INITIAL_KNOWLEDGE_FORM);
+    } catch (error) {
+      console.error('❌ Erro ao cadastrar conhecimento:', error);
+      console.error('Status:', error.response?.status);
+      console.error('Status Text:', error.response?.statusText);
+      console.error('Dados do erro:', error.response?.data);
+      console.error('Headers:', error.response?.headers);
+      
+      const errorMsg = error.response?.data?.message || 
+                      error.response?.data?.error || 
+                      JSON.stringify(error.response?.data) || 
+                      error.message;
+      
+      showAlert('danger', 'Erro ao cadastrar conhecimento: ' + errorMsg);
     } finally {
       setFormLoading(false);
     }
@@ -230,22 +251,58 @@ function Knowledge() {
     setShowAddModal(true);
   };
 
-  const handleDeleteKnowledge = (id) => {
+  const handleDeleteKnowledge = async (id) => {
     if (!window.confirm('Tem certeza que deseja remover este conhecimento?')) return;
-    setKnowledgeList(prev => prev.filter(k => k.id !== id));
-    setMyKnowledge(prev => prev.filter(k => k.id !== id));
-    showAlert('success', 'Conhecimento removido com sucesso!');
+    
+    try {
+      console.log('🗑️ [Knowledge] Removendo oferta:', id);
+      await api.delete(`/ofertas/${id}`);
+      console.log('✅ [Knowledge] Oferta removida com sucesso');
+      
+      // Atualizar estados locais
+      setKnowledgeList(prev => prev.filter(k => k.id !== id));
+      setMyKnowledge(prev => prev.filter(k => k.id !== id));
+      showAlert('success', 'Conhecimento removido com sucesso!');
+      
+      // Recarregar lista para garantir sincronização
+      fetchKnowledge();
+    } catch (error) {
+      console.error('❌ [Knowledge] Erro ao remover:', error);
+      showAlert('danger', 'Erro ao remover conhecimento: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleDeleteAllMyKnowledge = async () => {
+    if (!window.confirm('⚠️ ATENÇÃO: Isso vai remover TODOS os seus conhecimentos. Tem certeza?')) return;
+    
+    setFormLoading(true);
+    try {
+      console.log('🗑️ [Knowledge] Removendo todos os conhecimentos do usuário');
+      
+      // Deletar cada conhecimento individualmente
+      const deletePromises = myKnowledge.map(k => api.delete(`/ofertas/${k.id}`));
+      await Promise.all(deletePromises);
+      
+      console.log('✅ [Knowledge] Todos os conhecimentos removidos');
+      showAlert('success', `${myKnowledge.length} conhecimento(s) removido(s) com sucesso!`);
+      
+      // Recarregar lista
+      await fetchKnowledge();
+    } catch (error) {
+      console.error('❌ [Knowledge] Erro ao remover conhecimentos:', error);
+      showAlert('danger', 'Erro ao remover conhecimentos: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   const filtered = (list) => list.filter(k => {
     const text = search.toLowerCase();
     const matchSearch = !search ||
       k.titulo?.toLowerCase().includes(text) ||
-      k.descricao?.toLowerCase().includes(text) ||
-      k.categoria?.toLowerCase().includes(text);
-    const matchCat = !filterCategory || k.categoria === filterCategory;
+      k.descricao?.toLowerCase().includes(text);
     const matchLv = !filterLevel || k.nivel === filterLevel;
-    return matchSearch && matchCat && matchLv;
+    return matchSearch && matchLv;
   });
 
   const displayList = activeTab === 'explorar' ? filtered(knowledgeList) : filtered(myKnowledge);
@@ -273,10 +330,26 @@ function Knowledge() {
               Explore, cadastre e agende aulas com especialistas da comunidade.
             </p>
           </div>
-          <button className="btn-add-knowledge" onClick={openAddModal}>
-            <i className="bi bi-plus-lg"></i>
-            Cadastrar Conhecimento
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="btn-add-knowledge" onClick={openAddModal}>
+              <i className="bi bi-plus-lg"></i>
+              Cadastrar Conhecimento
+            </button>
+            {activeTab === 'meus' && myKnowledge.length > 0 && (
+              <button 
+                className="btn-add-knowledge" 
+                onClick={handleDeleteAllMyKnowledge}
+                style={{ 
+                  backgroundColor: '#dc3545', 
+                  borderColor: '#dc3545' 
+                }}
+                disabled={formLoading}
+              >
+                <i className="bi bi-trash-fill"></i>
+                {formLoading ? 'Removendo...' : 'Limpar Tudo'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -322,16 +395,12 @@ function Knowledge() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
-            <option value="">Todas as categorias</option>
-            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-          </select>
           <select value={filterLevel} onChange={e => setFilterLevel(e.target.value)}>
             <option value="">Todos os níveis</option>
             {LEVELS.map(l => <option key={l}>{l}</option>)}
           </select>
-          {(search || filterCategory || filterLevel) && (
-            <button className="btn-clear-filters" onClick={() => { setSearch(''); setFilterCategory(''); setFilterLevel(''); }}>
+          {(search || filterLevel) && (
+            <button className="btn-clear-filters" onClick={() => { setSearch(''); setFilterLevel(''); }}>
               <i className="bi bi-x-lg"></i> Limpar
             </button>
           )}
@@ -367,9 +436,6 @@ function Knowledge() {
           <div className="knowledge-grid">
             {displayList.map(k => (
               <div key={k.id} className="knowledge-card">
-                <div className="kc-header">
-                  <div className="kc-category-badge">{k.categoria}</div>
-                </div>
                 <h3 className="kc-title">{k.titulo}</h3>
                 <p className="kc-description">{k.descricao}</p>
 
@@ -390,7 +456,7 @@ function Knowledge() {
                     </div>
                   </div>
                   <div className="kc-actions">
-                    {k.isMine || (user && k.pessoa_id === user?.id) ? (
+                    {k.isMine || (user && (k.pessoaId === user?.id || k.pessoa_id === user?.id)) ? (
                       <button
                         className="btn-kc-danger"
                         onClick={() => handleDeleteKnowledge(k.id)}
@@ -466,18 +532,6 @@ function Knowledge() {
               </div>
 
               <div className="km-form-row">
-                <div className={`km-field ${formErrors.categoria ? 'field-error' : ''}`}>
-                  <label>Categoria <span className="req">*</span></label>
-                  <div className="km-input-wrapper">
-                    <i className="bi bi-tag-fill km-input-icon"></i>
-                    <select name="categoria" value={knowledgeForm.categoria} onChange={handleKnowledgeFormChange}>
-                      <option value="">Selecionar...</option>
-                      {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                    </select>
-                  </div>
-                  {formErrors.categoria && <span className="km-error">{formErrors.categoria}</span>}
-                </div>
-
                 <div className={`km-field ${formErrors.nivel ? 'field-error' : ''}`}>
                   <label>Nível <span className="req">*</span></label>
                   <div className="km-input-wrapper">
@@ -529,10 +583,6 @@ function Knowledge() {
               <div className="km-schedule-info-item">
                 <i className="bi bi-person-fill"></i>
                 <span>Professor: <strong>{selectedKnowledge.responsavel?.nome || selectedKnowledge.autor}</strong></span>
-              </div>
-              <div className="km-schedule-info-item">
-                <i className="bi bi-tag-fill"></i>
-                <span>Categoria: <strong>{selectedKnowledge.categoria}</strong></span>
               </div>
               <div className="km-schedule-info-item">
                 <i className="bi bi-bar-chart-fill"></i>
