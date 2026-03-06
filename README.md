@@ -91,3 +91,74 @@ Projeto aberto para uso e aprendizado. Adicione uma licença se desejar padroniz
 ---
 
 Arquivo principal de referência: [src/pages/Knowledge.jsx](src/pages/Knowledge.jsx)
+
+## Docker (Frontend + Backend)
+
+Forneço exemplos de `Dockerfile` e um `docker-compose.yml` para facilitar testes locais e deploys baseados em containers.
+
+- `docker/Dockerfile.frontend` — multi-stage: build com Node e serve com Nginx (recomendado)
+- `docker/Dockerfile.backend` — Dockerfile simples para o backend Node.js (copie para o repositório do backend)
+- `docker/nginx.conf` — configuração nginx para SPA (roteamento para index.html)
+- `docker-compose.yml` — exemplo que assume o backend em `../api-node-prisma-avanti-bootcamp` e o frontend neste repositório
+
+Uso rápido (local):
+
+1. Copie `docker/Dockerfile.backend` para o root do repositório do backend (por exemplo `../api-node-prisma-avanti-bootcamp/Dockerfile`).
+2. No repositório do frontend (este), rode:
+
+```bash
+docker-compose up --build
+```
+
+3. Acesse o frontend em `http://localhost:5173` e a API em `http://localhost:3000`.
+
+Observação: ajuste caminhos e variáveis de ambiente conforme sua infraestrutura.
+
+## Workflow de CI para o backend (GHCR)
+
+Incluí um template de workflow para **buildar e publicar** a imagem Docker do backend no GitHub Container Registry (GHCR).
+
+- Arquivo de exemplo (coloque no repositório do backend): `.github/workflows/publish-backend-image.yml`
+
+Instruções rápidas:
+
+1. Copie `publish-backend-image.yml` para o backend repo em `.github/workflows/`.
+2. Garanta que o `Dockerfile` do backend esteja no root do repo e que `npm start` seja o comando de start.
+3. Faça um push para o branch `main` do backend — o workflow buildará a imagem e fará push para `ghcr.io/<OWNER>/<REPO>`.
+
+Notas importantes:
+
+- O workflow usa o `GITHUB_TOKEN` por padrão para autenticação com GHCR; em organizações com permissões restritas você pode precisar de um PAT em `secrets.GHCR_PAT`.
+- Verifique em `Settings → Actions → General` e `Settings → Packages` as permissões para permitir publish de packages com o token automático.
+
+## Deploy com GitHub + Render
+
+Aqui está um fluxo recomendado para publicar a aplicação inteira usando o GitHub como repositório e o Render para o backend:
+
+1. Frontend — GitHub Pages (via GitHub Actions)
+
+- Já adicionei um workflow em `.github/workflows/deploy-frontend.yml` que:
+  - roda em pushes para `main`
+  - executa `npm ci` e `npm run build`
+  - publica a pasta `dist` no GitHub Pages automaticamente
+- Para ativar o Pages no repositório, após o primeiro deploy vá em `Settings → Pages` e selecione o branch `gh-pages` (ou verifique o log do Actions se usar `deploy-pages` que configura automaticamente).
+
+2. Backend — Render (integração GitHub automática)
+
+- Crie uma conta em https://render.com e conecte seu repositório do backend (separado) ou crie um novo service apontando para o repositório do backend.
+- Configure o build command (`npm install && npm run build` ou `npm ci`) e o start command (`npm start` ou `node dist/index.js` / `node index.js`) conforme seu projeto.
+- Adicione as variáveis de ambiente necessárias (DATABASE_URL, JWT_SECRET, etc.) no painel do Render.
+- O Render fará deploy automático a cada push no branch configurado.
+
+3. Alternativa: Railway, Heroku, Azure
+
+- Railway e Render têm integrações GitHub muito simples. Azure Web Apps pode ser usado via GitHub Actions se preferir infraestrutura Azure.
+
+## Próximos passos que eu posso executar para você
+
+- Criar e commitar o workflow do GitHub Actions para o frontend (já feito).
+- Atualizar `README.md` com instruções (feito).
+- Opcional: adicionar `CNAME` ou configuração de domínio personalizado ao workflow se quiser usar domínio próprio.
+- Opcional: criar workflow para construir uma imagem Docker do backend e publicar no GitHub Container Registry (para integração com Render/other).
+
+Diga qual desses próximos passos você quer que eu execute (ex.: gerar Dockerfile para o backend, configurar domínio, ou criar workflow para build Docker).
