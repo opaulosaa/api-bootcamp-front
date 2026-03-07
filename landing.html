@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Site ConectaSaber</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      // estilização
+        body {
+            background-color: #eeeeee;
+            color: #333333;
+        }
+        .header-box {
+            background-color: #0055ff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            border-bottom: 2px solid #0055ff;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        .card-simples {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body class="p-0 m-0">
+
+    // cabeçalho
+    <header class="header-box">
+        <h1 class="text-3xl font-bold">ConectaSaber</h1>
+        <p>Site para trocar conhecimentos</p>
+    </header>
+
+// boas vindas
+    <nav class="bg-gray-800 text-white p-2 flex justify-center gap-4 text-sm">
+        <a href="#inicio" class="underline">Início</a>
+        <a href="#ofertas" class="underline">Ofertas</a>
+        <a href="#cadastro" class="underline">Cadastrar</a>
+    </nav>
+
+    <main class="max-w-md mx-auto p-4 sm:max-w-xl md:max-w-4xl">
+        
+        <!-- Boas vindas -->
+        <section id="inicio" class="bg-white p-6 mb-6 border border-gray-300">
+            <h2 class="section-title">Bem-vindo!</h2>
+            <p class="mb-4">Este é um lugar para quem quer ensinar ou aprender alguma coisa de graça.</p>
+            <button onclick="alert('Indo para cadastro...')" class="bg-blue-600 text-white px-4 py-2 font-bold w-full sm:w-auto">
+                QUERO PARTICIPAR
+            </button>
+        </section>
+
+        
+        <section id="ofertas" class="mb-6">
+            <h2 class="section-title">O que tem pra aprender:</h2>
+            <div class="flex gap-2 overflow-x-auto pb-2 mb-4">
+                <button onclick="filtrar('Tudo')" class="bg-gray-300 px-3 py-1 text-sm border border-black">Tudo</button>
+                <button onclick="filtrar('Musica')" class="bg-gray-300 px-3 py-1 text-sm border border-black">Música</button>
+                <button onclick="filtrar('TI')" class="bg-gray-300 px-3 py-1 text-sm border border-black">T.I.</button>
+            </div>
+
+            
+            <div id="lista-ofertas">
+             
+            </div>
+        </section>
+
+        
+        <section class="bg-yellow-100 p-4 border-2 border-yellow-400 mb-6">
+            <h2 class="font-bold text-xl mb-2">Como usar?</h2>
+            <ol class="list-decimal ml-5">
+                <li>Você faz uma conta.</li>
+                <li>Diz o que você sabe ensinar.</li>
+                <li>As pessoas te chamam e vocês combinam.</li>
+            </ol>
+        </section>
+
+       //rodape
+        <footer class="text-center text-xs text-gray-500 py-8 border-t border-gray-300">
+            <p>ConectaSaber - 2026</p>
+        </footer>
+    </main>
+
+    <script>
+       
+        const dados = [
+            { nome: "Tocar Violão", cat: "Musica", desc: "Ensino o básico de acordes." },
+            { nome: "Fazer Site", cat: "TI", desc: "Ensino a fazer um site igual esse." },
+            { nome: "Inglês", cat: "Idiomas", desc: "Aulas de conversação." }
+        ];
+
+        function montarLista(itens) {
+            const container = document.getElementById('lista-ofertas');
+            container.innerHTML = '';
+            
+            itens.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'card-simples';
+                div.innerHTML = `
+                    <h3 class="font-bold text-blue-700">${item.nome}</h3>
+                    <p class="text-sm">${item.desc}</p>
+                    <small class="text-gray-400">Categoria: ${item.cat}</small>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function filtrar(categoria) {
+            if(categoria === 'Tudo') {
+                montarLista(dados);
+            } else {
+                const filtrados = dados.filter(d => d.cat === categoria);
+                montarLista(filtrados);
+            }
+        }
+
+  
+        montarLista(dados);
+    </script>
+</body>
+</html>
