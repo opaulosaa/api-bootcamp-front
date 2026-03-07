@@ -153,12 +153,3 @@ Aqui está um fluxo recomendado para publicar a aplicação inteira usando o Git
 3. Alternativa: Railway, Heroku, Azure
 
 - Railway e Render têm integrações GitHub muito simples. Azure Web Apps pode ser usado via GitHub Actions se preferir infraestrutura Azure.
-
-## Próximos passos que eu posso executar para você
-
-- Criar e commitar o workflow do GitHub Actions para o frontend (já feito).
-- Atualizar `README.md` com instruções (feito).
-- Opcional: adicionar `CNAME` ou configuração de domínio personalizado ao workflow se quiser usar domínio próprio.
-- Opcional: criar workflow para construir uma imagem Docker do backend e publicar no GitHub Container Registry (para integração com Render/other).
-
-Diga qual desses próximos passos você quer que eu execute (ex.: gerar Dockerfile para o backend, configurar domínio, ou criar workflow para build Docker).
